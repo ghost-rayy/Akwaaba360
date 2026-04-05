@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\SelectionController;
 use App\Http\Controllers\Admin\LetterController;
 use App\Http\Controllers\Admin\PersonnelController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -28,7 +29,8 @@ Route::middleware(['auth', 'role:hr_admin'])->group(function () {
         Route::post('/endorse/{userId}', [SelectionController::class, 'endorseStore'])->name('admin.endorse.store');
 
         Route::get('/appointment-letter', [LetterController::class, 'index'])->name('admin.appointment');
-        Route::get('/appointment-letter/{userId}/generate', [LetterController::class, 'show'])->name('admin.appointment.show');
+        Route::get('/appointment-letter/{userId}', [LetterController::class, 'show'])->name('admin.appointment.show');
+        Route::post('/appointment-letter/{userId}/send', [LetterController::class, 'send'])->name('admin.appointment.send');
 
         Route::get('/manage-personnel', [PersonnelController::class, 'index'])->name('admin.manage-personnel');
         Route::post('/manage-personnel/{userId}/assign', [PersonnelController::class, 'assignDepartment'])->name('admin.manage-personnel.assign');
@@ -36,6 +38,11 @@ Route::middleware(['auth', 'role:hr_admin'])->group(function () {
 
         Route::get('/manage-departments', [DepartmentController::class, 'index'])->name('admin.manage-departments');
         Route::post('/manage-departments', [DepartmentController::class, 'store'])->name('admin.departments.store');
+
+        Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings');
+        Route::post('/settings/update', [SettingsController::class, 'updateCompany'])->name('admin.settings.update');
+        Route::post('/settings/staff', [SettingsController::class, 'storeStaff'])->name('admin.staff.store');
+        Route::delete('/settings/staff/{id}', [SettingsController::class, 'destroyStaff'])->name('admin.staff.destroy');
     });
 
     Route::get('/password/change', function () {

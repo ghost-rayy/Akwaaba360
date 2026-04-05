@@ -55,7 +55,15 @@
                             {{ $p->onboardingRecord->endorsed_at->format('M d, Y') }}
                         </span>
                     </td>
-                    <td class="px-10 py-6 text-right">
+                    <td class="px-10 py-6 text-right flex justify-end items-center space-x-3">
+                        <form action="{{ route('admin.appointment.send', $p->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="bg-gray-800 hover:bg-black text-white font-black text-[10px] uppercase px-6 py-3.5 rounded-2xl transition-all shadow-xl active:scale-95 flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <span>Send to Email</span>
+                            </button>
+                        </form>
+                        
                         <a href="{{ route('admin.appointment.show', $p->id) }}" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white font-black text-[10px] uppercase px-8 py-3.5 rounded-2xl transition-all shadow-xl hover:shadow-orange-200 active:scale-95 inline-block">
                             Issue Letter
                         </a>

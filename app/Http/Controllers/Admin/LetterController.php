@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\OnboardingRecord;
+use App\Mail\AppointmentLetterMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class LetterController extends Controller
 {
@@ -39,5 +41,19 @@ class LetterController extends Controller
         // Here we just display it.
         
         return view('admin.appointment-letter.show', compact('user'));
+    }
+
+    /**
+     * Send official appointment notification via email.
+     */
+    public function send($userId)
+    {
+        $user = User::where('id', $userId)
+            ->where('role', 'personnel')
+            ->firstOrFail();
+
+        Mail::to($user->email)->send(new AppointmentLetterMail($user));
+
+        return back()->with('success', "Specialized appointment alert has been dispatched to {$user->name}.");
     }
 }

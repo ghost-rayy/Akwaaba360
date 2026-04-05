@@ -15,7 +15,7 @@
         .sidebar { background: linear-gradient(180deg, #FF8D4D 0%, #FF6B35 100%); }
         .nav-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 12px; }
         .nav-item:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
-        .nav-item.active { background: #fff; color: #FF6B35; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2); }
+        .nav-item.active { background: #fff; color: #FF6b35; font-weight: 800; box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3); }
         .content-area { border-radius: 24px 0 0 24px; box-shadow: -10px 0 30px rgba(0, 0, 0, 0.02); }
     </style>
 </head>
@@ -68,6 +68,10 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                 <span>Manage Departments</span>
             </a>
+            <a href="{{ route('admin.settings') }}" class="nav-item flex items-center space-x-3 px-4 py-3.5 @if(Route::is('admin.settings')) active font-bold @else font-medium @endif">
+                <svg class="w-5 h-5 @if(!Route::is('admin.settings')) text-orange-100 @endif" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span>Settings</span>
+            </a>
         </nav>
 
         <div class="mt-auto pt-6 border-t border-orange-400">
@@ -84,7 +88,7 @@
     <!-- Main Content -->
     <main class="flex-grow bg-white content-area overflow-y-auto">
         <!-- Top Header -->
-        <header class="flex justify-between items-center px-10 py-6 border-b border-gray-50 bg-white/80 backdrop-blur-md sticky top-0 z-20">
+        <header class="flex justify-between items-center px-10 py-8 border-b border-gray-50 bg-white/80 backdrop-blur-md sticky top-0 z-20">
             <div>
                 <h2 class="text-2xl font-bold text-gray-800">@yield('page_title', 'Dashboard')</h2>
                 <p class="text-sm text-gray-400 font-medium tracking-wide">{{ now()->format('l, jS F Y') }}</p>
@@ -108,9 +112,11 @@
         </header>
 
         <!-- Dynamic Content -->
-        <div class="p-10 max-w-7xl mx-auto">
+        <div class="p-10 max-w-[1600px] mx-auto w-full">
             @yield('content')
         </div>
     </main>
+
+    @stack('scripts')
 </body>
 </html>

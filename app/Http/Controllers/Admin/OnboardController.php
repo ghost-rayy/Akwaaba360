@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\OnboardingCredentialMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class OnboardController extends Controller
@@ -38,8 +40,9 @@ class OnboardController extends Controller
             'password_must_change' => true,
         ]);
 
-        // In a production app, we would send the email here
+        Mail::to($user->email)->send(new OnboardingCredentialMail($user, $tempPassword));
+
         // For now, we'll store the temp password in the session for testing
-        return back()->with('success', 'Personnel onboarded successfully! Temporary Password: ' . $tempPassword);
+        return back()->with('success', 'Personnel onboarded successfully! Credentials have been sent to their email. Temporary Password: ' . $tempPassword);
     }
 }

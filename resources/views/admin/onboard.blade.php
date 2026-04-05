@@ -3,12 +3,12 @@
 @section('page_title', 'Onboard Personnel')
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
     <!-- Form Section -->
     <div class="lg:col-span-1">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-50 sticky top-32">
-            <h3 class="text-xl font-extrabold text-gray-800 mb-2">New Enrollment</h3>
-            <p class="text-sm text-gray-400 font-medium mb-8">Enter details to generate temporary credentials.</p>
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-50 sticky top-32">
+            <h3 class="text-2xl font-black text-gray-800 mb-2 uppercase tracking-tight">New Enrollment</h3>
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest leading-loose mb-10">Enter details to generate temporary credentials.</p>
 
             @if(session('success'))
             <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-r-xl">
@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="pt-4">
-                    <button type="submit" class="w-full bg-orange-gradient text-white font-extrabold py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-2">
+                    <button type="submit" class="w-full bg-orange-gradient text-orange-500 font-extrabold py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
                         <span>Onboard Personnel</span>
                     </button>
@@ -62,7 +62,7 @@
     </div>
 
     <!-- List Section -->
-    <div class="lg:col-span-2">
+    <div class="lg:col-span-3">
         <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 overflow-hidden">
             <div class="px-10 py-8 border-b border-gray-50 flex justify-between items-center">
                 <h3 class="text-xl font-extrabold text-gray-800">Enrolled Personnel</h3>
