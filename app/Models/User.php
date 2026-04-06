@@ -31,6 +31,22 @@ class User extends Authenticatable
         'department_id',
     ];
 
+    /**
+     * Boot the model to handle cascading deletions.
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($user) {
+            // Automatically clean up associated administrative records
+            if ($user->onboardingRecord) {
+                $user->onboardingRecord->delete();
+            }
+            if ($user->personnelProfile) {
+                $user->personnelProfile->delete();
+            }
+        });
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class);
@@ -54,6 +70,11 @@ class User extends Authenticatable
     public function onboardingRecord()
     {
         return $this->hasOne(OnboardingRecord::class);
+    }
+
+    public function personnelProfile()
+    {
+        return $this->hasOne(PersonnelProfile::class);
     }
 
     public function isShortlisted(): bool

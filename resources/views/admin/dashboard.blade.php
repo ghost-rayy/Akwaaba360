@@ -11,7 +11,7 @@
         </div>
         <div>
             <p class="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Total Personnel</p>
-            <h3 class="text-4xl font-extrabold text-gray-800">1,284</h3>
+            <h3 class="text-4xl font-extrabold text-gray-800">{{ number_format($stats['total_personnel']) }}</h3>
         </div>
     </div>
 
@@ -22,7 +22,7 @@
         </div>
         <div>
             <p class="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Pending Endorsement</p>
-            <h3 class="text-4xl font-extrabold text-gray-800">45</h3>
+            <h3 class="text-4xl font-extrabold text-gray-800">{{ number_format($stats['pending_endorsement']) }}</h3>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
         </div>
         <div>
             <p class="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Active Departments</p>
-            <h3 class="text-4xl font-extrabold text-gray-800">12</h3>
+            <h3 class="text-4xl font-extrabold text-gray-800">{{ number_format($stats['total_departments']) }}</h3>
         </div>
     </div>
 </div>
@@ -46,16 +46,39 @@
                 <h3 class="text-2xl font-extrabold text-gray-800">Recent Onboarding</h3>
                 <p class="text-sm text-gray-400 font-medium">Last 5 personnel added to the system</p>
             </div>
-            <a href="{{ route('admin.onboard') }}" class="text-sm font-bold text-orange-500 hover:text-orange-600 transition-colors">View All &rarr;</a>
+            <a href="{{ route('admin.manage-personnel') }}" class="text-sm font-bold text-orange-500 hover:text-orange-600 transition-colors">View All &rarr;</a>
         </div>
 
         <div class="space-y-6 relative z-10">
-            @forelse([] as $p)
-                <!-- Personnel Item -->
+            @forelse($recentOnboarding as $personnel)
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-white hover:shadow-md transition-all border border-transparent hover:border-gray-100 group">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-orange-500 font-black shadow-sm group-hover:bg-orange-500 group-hover:text-white transition-colors uppercase">
+                            {{ strtoupper(substr($personnel->personnelProfile->first_name ?? $personnel->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">
+                                {{ $personnel->personnelProfile->first_name ?? $personnel->name }} {{ $personnel->personnelProfile->surname ?? '' }}
+                            </h4>
+                            <p class="text-[10px] text-orange-500 font-black uppercase tracking-widest">{{ $personnel->nss_number }}</p>
+                        </div>
+                    </div>
+                    @php
+                        $onboardingStatus = $personnel->onboardingRecord->status ?? 'onboarded';
+                        $statusColor = match($onboardingStatus) {
+                            'endorsed' => 'text-green-500 border-green-100 bg-green-50',
+                            'shortlisted' => 'text-blue-500 border-blue-100 bg-blue-50',
+                            default => 'text-orange-500 border-orange-100 bg-orange-50',
+                        };
+                    @endphp
+                    <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg border {{ $statusColor }}">
+                        {{ $onboardingStatus }}
+                    </span>
+                </div>
             @empty
                 <div class="flex flex-col items-center justify-center py-12 text-center">
                     <div class="p-6 bg-gray-50 rounded-full mb-4">
-                        <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                        <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                     </div>
                     <h4 class="text-lg font-bold text-gray-600">No recent activity</h4>
                     <p class="text-sm text-gray-400 max-w-[200px]">Start by onboarding new National Service personnel.</p>
@@ -64,19 +87,29 @@
         </div>
     </div>
 
-    <div class="bg-orange-gradient p-10 rounded-[2.5rem] shadow-2xl relative flex flex-col justify-between text-white">
+    <!-- Enhanced Visibility Welcome Box -->
+    <div class="p-10 rounded-[2.5rem] shadow-2xl relative flex flex-col justify-between text-white" style="background: linear-gradient(135deg, #FF8D4D 0%, #FF6B35 100%);">
         <div class="relative z-10">
-            <h3 class="text-3xl font-black mb-4 leading-tight">Welcome back, Administrator.</h3>
-            <p class="text-orange-100 font-medium opacity-90 max-w-md leading-relaxed text-lg mb-8">
-                The Akwaaba360 portal is ready. You have **45 personnel** awaiting endorsement and **3 new** department requests this morning.
+            <h3 class="text-3xl font-black mb-4 leading-tight shadow-sm text-white">
+                Welcome back,<br>
+                {{ auth()->user()->role == 'hr_admin' ? 'Administrator.' : 'Staff Member.' }}
+            </h3>
+            
+            <p class="text-white font-bold opacity-100 max-w-md leading-relaxed text-lg mb-8 drop-shadow-md">
+                @if(auth()->user()->role == 'hr_admin')
+                    The Akwaaba360 portal is live. You have <span class="bg-white text-orange-600 px-2 py-0.5 rounded-lg mx-1">{{ number_format($stats['pending_endorsement']) }}</span> personnel awaiting endorsement this morning.
+                @else
+                    The Akwaaba360 portal is live. Start managing your <span class="bg-white text-orange-600 px-2 py-0.5 rounded-lg mx-1">{{ number_format($stats['total_personnel']) }}</span> personnel records effectively.
+                @endif
             </p>
             
-            <button class="bg-white text-orange-600 font-extrabold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95">
-                Generate Monthly Reports
+            <button class="bg-white text-orange-600 font-black px-8 py-4 rounded-2xl shadow-2xl hover:bg-orange-50 transition-all border-b-4 border-orange-200 active:border-b-0 active:translate-y-1">
+                {{ auth()->user()->role == 'hr_admin' ? 'Generate Monthly Reports' : 'Export Personnel Data' }}
             </button>
         </div>
         
-        <div class="absolute bottom-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mb-32 blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-64 h-64 bg-white/20 rounded-full -mr-32 -mb-32 blur-3xl"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-black/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
     </div>
 </div>
 @endsection

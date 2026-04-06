@@ -21,12 +21,22 @@
         <div class="header">
             <div class="logo">A</div>
             <h1>Welcome to Akwaaba360</h1>
-            <p style="margin: 5px 0 0; opacity: 0.8; font-weight: 500;">National Service Personnel Onboarding</p>
+            <p style="margin: 5px 0 0; opacity: 0.8; font-weight: 500;">
+                @if($user->role == 'hr_staff')
+                    Administrative Access Authorization
+                @else
+                    National Service Personnel Onboarding
+                @endif
+            </p>
         </div>
         
         <div class="content">
             <p>Dear <strong>{{ $user->name }}</strong>,</p>
-            <p>Congratulations! You have been onboarded for your National Service with {{ config('app.name') }}. Your account is now active and ready for the next phase of your recruitment journey.</p>
+            @if($user->role == 'hr_staff')
+                <p>Congratulations! You have been authorized as an **HR Staff** member with {{ config('app.name') }}. Your administrative account is now active and ready for use.</p>
+            @else
+                <p>Congratulations! You have been onboarded for your National Service with {{ config('app.name') }}. Your account is now active and ready for the next phase of your recruitment journey.</p>
+            @endif
             
             <div class="credential-box">
                 <div class="credential-item">Email Address</div>

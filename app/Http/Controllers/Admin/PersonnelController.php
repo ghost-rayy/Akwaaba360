@@ -15,7 +15,7 @@ class PersonnelController extends Controller
     public function index()
     {
         $personnel = User::where('role', 'personnel')
-            ->with(['onboardingRecord', 'department'])
+            ->with(['onboardingRecord', 'department', 'personnelProfile'])
             ->latest()
             ->get();
 

@@ -111,14 +111,59 @@ class SettingsController extends Controller
         return back()->with('success', "HR Staff authorized successfully! Credentials have been sent to their email. Temporary Password: {$tempPassword}");
     }
 
-    /**
-     * Remove an HR Staff member.
-     */
     public function destroyStaff($id)
     {
         $user = User::where('id', $id)->where('role', 'hr_staff')->firstOrFail();
         $user->delete();
 
         return back()->with('success', 'HR Staff account has been removed.');
+    }
+
+    public function updateStaff(Request $request, $id)
+    {
+        $user = User::where('id', $id)->where('role', 'hr_staff')->firstOrFail();
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'staff_number' => 'required|unique:users,staff_number,' . $user->id,
+        ]);
+
+        $emailChanged = $user->email !== $request->email;
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'staff_number' => $request->staff_number,
+        ]);
+
+        if ($emailChanged) {
+            $tempPassword = $this->sendNewStaffCredentials($user);
+            return back()->with('success', "Staff updated! Email changed, so new credentials were sent. New Temp Password: {$tempPassword}");
+        }
+
+        return back()->with('success', 'HR Staff details updated successfully.');
+    }
+
+    public function resendStaffCredentials($id)
+    {
+        $user = User::where('id', $id)->where('role', 'hr_staff')->firstOrFail();
+        $tempPassword = $this->sendNewStaffCredentials($user);
+        
+        return back()->with('success', "New credentials generated and sent! New Temp Password: {$tempPassword}");
+    }
+
+    private function sendNewStaffCredentials(User $user)
+    {
+        $tempPassword = 'HR-' . strtoupper(Str::random(6));
+        
+        $user->update([
+            'password' => Hash::make($tempPassword),
+            'password_must_change' => true,
+        ]);
+
+        Mail::to($user->email)->send(new OnboardingCredentialMail($user, $tempPassword));
+
+        return $tempPassword;
     }
 }

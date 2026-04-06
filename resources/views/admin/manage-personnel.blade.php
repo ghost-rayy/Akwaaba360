@@ -27,9 +27,10 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-gray-400 text-xs font-black uppercase tracking-widest bg-gray-50/50">
-                    <th class="px-10 py-6">Identity</th>
-                    <th class="px-10 py-6">NSS ID</th>
-                    <th class="px-10 py-6">Current Flow</th>
+                    <th class="px-10 py-6">Verified Identity</th>
+                    <th class="px-10 py-6 text-center">Gender</th>
+                    <th class="px-10 py-6">Contact & NSS</th>
+                    <th class="px-10 py-6">Institution / Program</th>
                     <th class="px-10 py-6">Department</th>
                     <th class="px-10 py-6 text-right">Actions</th>
                 </tr>
@@ -40,29 +41,45 @@
                     <td class="px-10 py-6">
                         <div class="flex items-center space-x-4">
                             <div class="w-11 h-11 bg-orange-gradient rounded-2xl flex items-center justify-center font-black text-white text-sm shadow-md transition-transform group-hover:scale-105">
-                                {{ strtoupper(substr($p->name, 0, 1)) }}
+                                {{ strtoupper(substr($p->personnelProfile->first_name ?? $p->name, 0, 1)) }}
                             </div>
                             <div>
-                                <p class="font-extrabold text-gray-800 text-sm tracking-tight">{{ $p->name }}</p>
-                                <p class="text-xs text-gray-400 font-medium">{{ $p->phone_number }}</p>
+                                <p class="font-extrabold text-gray-800 text-sm tracking-tight">
+                                    {{ $p->personnelProfile->first_name ?? $p->name }} {{ $p->personnelProfile->surname ?? '' }}
+                                </p>
+                                <div class="flex items-center space-x-2">
+                                    @php
+                                        $status = $p->onboardingRecord->status ?? 'onboarded';
+                                        $colorClass = match($status) {
+                                            'endorsed' => 'text-green-500',
+                                            'shortlisted' => 'text-blue-500',
+                                            default => 'text-gray-400',
+                                        };
+                                    @endphp
+                                    <span class="text-[9px] font-black uppercase tracking-widest {{ $colorClass }}">{{ $status }}</span>
+                                </div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-10 py-6 font-bold text-gray-600 text-sm tracking-widest uppercase">
-                        {{ $p->nss_number }}
+                    <td class="px-10 py-6 text-center">
+                        <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                            {{ $p->personnelProfile->gender ?? 'N/A' }}
+                        </span>
                     </td>
                     <td class="px-10 py-6">
-                        @php
-                            $status = $p->onboardingRecord->status ?? 'onboarded';
-                            $colorClass = match($status) {
-                                'endorsed' => 'bg-green-100 text-green-600',
-                                'shortlisted' => 'bg-blue-100 text-blue-600',
-                                default => 'bg-gray-100 text-gray-500',
-                            };
-                        @endphp
-                        <span class="px-3 py-1 {{ $colorClass }} rounded-lg text-[10px] font-black uppercase tracking-widest">
-                            {{ $status }}
-                        </span>
+                        <div class="space-y-1">
+                            <p class="text-[11px] font-bold text-gray-800 tracking-tight">{{ $p->email }}</p>
+                            <p class="text-[10px] text-orange-500 font-extrabold tracking-widest uppercase">{{ $p->nss_number }}</p>
+                            <p class="text-[10px] text-gray-400 font-medium">{{ $p->phone_number }}</p>
+                        </div>
+                    </td>
+                    <td class="px-10 py-6">
+                        @if($p->personnelProfile)
+                        <p class="font-bold text-gray-700 text-[10px] uppercase tracking-tight">{{ $p->personnelProfile->university }}</p>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">{{ $p->personnelProfile->program }}</p>
+                        @else
+                        <span class="text-[10px] font-bold text-gray-300 italic">Profile Incomplete</span>
+                        @endif
                     </td>
                     <td class="px-10 py-6">
                         <form action="{{ route('admin.manage-personnel.assign', $p->id) }}" method="POST">

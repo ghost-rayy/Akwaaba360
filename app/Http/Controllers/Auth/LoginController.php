@@ -35,7 +35,7 @@ class LoginController extends Controller
             if ($user->isHrAdmin()) {
                 return redirect()->intended('admin/dashboard');
             } elseif ($user->isHrStaff()) {
-                return redirect()->intended('staff/dashboard');
+                return redirect()->intended('admin/dashboard');
             } else {
                 return redirect()->intended('personnel/dashboard');
             }

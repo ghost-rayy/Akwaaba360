@@ -26,11 +26,10 @@ class OnboardController extends Controller
             'phone_number' => 'required',
         ]);
 
-        // Generate temporary password
         $tempPassword = 'NSS-' . strtoupper(Str::random(6));
 
         $user = User::create([
-            'name' => 'Personnel ' . $request->nss_number, // Default name till they update profile
+            'name' => $request->nss_number,
             'email' => $request->email,
             'password' => Hash::make($tempPassword),
             'nss_number' => $request->nss_number,
@@ -42,7 +41,57 @@ class OnboardController extends Controller
 
         Mail::to($user->email)->send(new OnboardingCredentialMail($user, $tempPassword));
 
-        // For now, we'll store the temp password in the session for testing
-        return back()->with('success', 'Personnel onboarded successfully! Credentials have been sent to their email. Temporary Password: ' . $tempPassword);
+        return back()->with('success', 'Personnel onboarded successfully! Temporary Password: ' . $tempPassword);
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone_number' => 'required',
+        ]);
+
+        $emailChanged = $user->email !== $request->email;
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+        ]);
+
+        if ($emailChanged) {
+            $tempPassword = $this->sendNewCredentials($user);
+            return back()->with('success', 'Personnel updated! Email changed, so new credentials were sent. New Temp Password: ' . $tempPassword);
+        }
+
+        return back()->with('success', 'Personnel details updated successfully.');
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return back()->with('success', 'Personnel record has been completely removed from the system.');
+    }
+
+    public function resendCredentials(User $user)
+    {
+        $tempPassword = $this->sendNewCredentials($user);
+        return back()->with('success', 'New credentials generated and sent! New Temp Password: ' . $tempPassword);
+    }
+
+    private function sendNewCredentials(User $user)
+    {
+        $tempPassword = 'NSS-' . strtoupper(Str::random(6));
+        
+        $user->update([
+            'password' => Hash::make($tempPassword),
+            'password_must_change' => true,
+        ]);
+
+        Mail::to($user->email)->send(new OnboardingCredentialMail($user, $tempPassword));
+
+        return $tempPassword;
     }
 }

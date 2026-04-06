@@ -124,8 +124,15 @@
     </div>
 
     <!-- HR Staff Section -->
-    <div class="lg:col-span-1">
-        <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 overflow-hidden">
+    <div class="lg:col-span-1" x-data="{ 
+        staffModal: false, 
+        currentStaff: {},
+        openEditStaff(staff) {
+            this.currentStaff = staff;
+            this.staffModal = true;
+        }
+    }">
+        <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 overflow-hidden min-h-[700px] flex flex-col">
             <div class="px-10 py-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/20">
                 <h3 class="text-xl font-extrabold text-gray-800 tracking-tight">HR Staff</h3>
                 <span class="text-xs font-black uppercase text-orange-500 bg-orange-50 px-3 py-1 rounded-lg">{{ $hrStaff->count() }}</span>
@@ -153,31 +160,111 @@
             </form>
 
             <!-- Staff List -->
-            <div class="divide-y divide-gray-50">
+            <div class="divide-y divide-gray-50 flex-grow">
                 @forelse($hrStaff as $staff)
-                <div class="p-6 flex justify-between items-center group">
+                <div class="p-6 flex justify-between items-center group relative h-20">
                     <div class="flex items-center space-x-4">
-                        <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
-                            {{ strtoupper(substr($staff->name, 0, 1)) }}
+                        <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center font-black text-gray-400 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm border-2 border-white uppercase">
+                            {{ substr($staff->name, 0, 1) }}
                         </div>
                         <div>
-                            <p class="text-sm font-bold text-gray-800 tracking-tight">{{ $staff->name }}</p>
-                            <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase">{{ $staff->staff_number }}</p>
+                            <p class="text-sm font-black text-gray-800 leading-none mb-1">{{ $staff->name }}</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{{ $staff->staff_number }}</p>
                         </div>
                     </div>
-                    <form action="{{ route('admin.staff.destroy', $staff->id) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="p-2 text-gray-300 hover:text-red-500 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.away="open = false" class="p-2 text-gray-300 hover:text-orange-500 transition-all active:scale-95">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                         </button>
-                    </form>
+
+                        <!-- Action Menu -->
+                        <div x-show="open" 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden py-1"
+                             style="display: none;">
+                            
+                            <button @click="openEditStaff({{ json_encode($staff) }}); open = false" class="w-full flex items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-gray-700 hover:bg-gray-50 hover:text-orange-500 transition-colors text-left">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                <span>Edit Staff</span>
+                            </button>
+
+                            <form action="{{ route('admin.staff.resend', $staff->id) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-gray-700 hover:bg-gray-50 hover:text-orange-500 transition-colors text-left">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    <span>Resend Access</span>
+                                </button>
+                            </form>
+
+                            <div class="border-t border-gray-50 my-1"></div>
+
+                            <form action="{{ route('admin.staff.destroy', $staff->id) }}" method="POST" onsubmit="return confirm('Confirm Removal: Revoke administrative access for this staff member?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-full flex items-center space-x-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-colors text-left">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <span>Revoke Access</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
                 @empty
                 <div class="p-10 text-center text-gray-400 text-sm font-medium">
                     No HR staff currently registered.
                 </div>
                 @endforelse
+            </div>
+        </div>
+
+        <!-- Edit Staff Modal -->
+        <div x-show="staffModal" 
+             style="display: none;"
+             class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100">
+            
+            <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl p-10 relative overflow-hidden" 
+                 @click.away="staffModal = false"
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="scale-95 opacity-0"
+                 x-transition:enter-end="scale-100 opacity-100">
+                
+                <h3 class="text-2xl font-black text-gray-800 mb-2 uppercase tracking-tight">Edit HR Staff</h3>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest leading-loose mb-10">Administrative personnel profile.</p>
+
+                <form :action="'{{ url('admin/settings/staff') }}/' + currentStaff.id" method="POST" class="space-y-6">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div>
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 pl-1">Full Name</label>
+                        <input type="text" name="name" required x-model="currentStaff.name"
+                            class="w-full bg-gray-50 border-none rounded-xl px-5 py-3 text-sm font-bold text-gray-700 shadow-sm focus:ring-2 focus:ring-orange-100 transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 pl-1">Email Address</label>
+                        <input type="email" name="email" required x-model="currentStaff.email"
+                            class="w-full bg-gray-50 border-none rounded-xl px-5 py-3 text-sm font-bold text-gray-700 shadow-sm focus:ring-2 focus:ring-orange-100 transition-all">
+                        <p class="text-[9px] text-orange-500 font-black uppercase mt-2 tracking-widest italic opacity-70">Security: Changing email will reset credentials</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 pl-1">Staff Number</label>
+                        <input type="text" name="staff_number" required x-model="currentStaff.staff_number"
+                            class="w-full bg-gray-50 border-none rounded-xl px-5 py-3 text-sm font-bold text-gray-700 shadow-sm focus:ring-2 focus:ring-orange-100 transition-all">
+                    </div>
+
+                    <div class="pt-4 flex space-x-4">
+                        <button type="button" @click="staffModal = false" class="flex-1 bg-gray-100 text-gray-400 font-black text-[10px] uppercase py-4 rounded-xl hover:bg-gray-200 transition-all active:scale-95">Cancel</button>
+                        <button type="submit" class="flex-1 bg-orange-600 text-white font-black text-[10px] uppercase py-4 rounded-xl shadow-lg hover:bg-orange-700 transition-all transform hover:-translate-y-1 active:scale-95">Update Staff</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
